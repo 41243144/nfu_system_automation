@@ -1,0 +1,5 @@
+selenium
+webdriver-manager
+pyqt6
+bcrypt
+ddddocr
