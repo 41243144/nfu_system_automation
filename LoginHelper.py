@@ -197,21 +197,21 @@ class LoginHelper():
         擷取驗證碼圖片
         """
         captcha_img = self.driver.find_element(By.ID, "authimg")
-        location = captcha_img.location                         # 元素的 x, y 座標
-        size = captcha_img.size                                 # 元素的寬度和高度
-        screenshot = self.driver.get_screenshot_as_png()        # 獲取整個畫面的截圖
-        screenshot_image = Image.open(io.BytesIO(screenshot))   # 使用 PIL 來讀取整個畫面的截圖
+        captcha_base64 = self.driver.execute_script("""
+            var img = arguments[0];
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            return canvas.toDataURL('image/png').substring(22);
+        """, captcha_img)
 
-        # 計算驗證碼圖片的區域 (左, 上, 右, 下)
-        left = location['x']
-        top = location['y']
-        right = left + size['width']
-        bottom = top + size['height']
-        captcha_image = screenshot_image.crop((left, top, right, bottom))        # 從整個畫面截圖中裁剪出驗證碼圖片
-        img_byte_arr = io.BytesIO()
-        captcha_image.save(img_byte_arr, format='PNG')
-        img_data = img_byte_arr.getvalue()
-        return img_data
+        # 將 Base64 編碼轉換為圖片
+        captcha_data = base64.b64decode(captcha_base64)
+
+        # 如果需要將圖片以 byte array 返回:
+        return captcha_data
     
     def get_captcha_text(self, img_data):
         """
