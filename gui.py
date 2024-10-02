@@ -90,7 +90,7 @@ class MyWidget(QtWidgets.QWidget):
         if self.check_account():
             self.ui()
         else:
-            self.exit()
+            exit(1)
 
     def check_account(self):
         if self.load_account():
@@ -221,11 +221,11 @@ class MyWidget(QtWidgets.QWidget):
     def on_login_finished(self, message):
         print("登入結果", message)
 
-if __name__ == '__main__':
-    # 創建app
-    app = QtWidgets.QApplication(sys.argv)
+# if __name__ == '__main__':
+#     # 創建app
+#     app = QtWidgets.QApplication(sys.argv)
     
-    Form = MyWidget()
-    Form.show()
+#     Form = MyWidget()
+#     Form.show()
     
-    sys.exit(app.exec())
+#     sys.exit(app.exec())
