@@ -26,9 +26,6 @@ class LoginHelper():
         self.password = password
         self.current = current
         self.start_browser()
-        # 避免瀏覽器自動關閉
-        input()
-        self.close_browser()
 
     def start_browser(self):
         """
@@ -53,6 +50,13 @@ class LoginHelper():
             self.mail2000()
         elif self.current == "工讀平台":
             self.study_work()
+
+                # 避免瀏覽器自動關閉
+        while True:
+            try:
+                pass
+            except KeyboardInterrupt:
+                self.close_browser()
 
     def ulearn(self):
         """
