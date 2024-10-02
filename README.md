@@ -3,12 +3,11 @@
 ## 使用指南
 
 ### 1. 解壓縮
-解壓縮下載的檔案後，你將會看到兩個資料夾：  
-- **dist**  
-- **icon**
+解壓縮下載的檔案後，你將會看到資料夾：  
+- **dist** 
 
 ### 2. 執行程式
-進入 **dist** 資料夾，找到名為 `main.exe` 的可執行檔。  
+進入 **dist** 資料夾  
 雙擊 `main.exe` 來啟動程式。  
 你也可以選擇將該檔案建立捷徑到桌面，以便日後快速啟動。
 
@@ -26,6 +25,6 @@
 ---
 
 ### 下載連結
-[點此下載](https://github.com/41243144/nfu_system_automation/releases/tag/%E8%87%AA%E5%8B%95%E7%99%BB%E5%85%A5)
+[點此下載](https://github.com/41243144/nfu_system_automation/releases)
 
 - 若有任何問題，歡迎聯絡開發者協助。
