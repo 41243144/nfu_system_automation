@@ -25,5 +25,7 @@
 
 ---
 
-### 注意事項
+### 下載連結
+[點此下載](https://github.com/41243144/nfu_system_automation/releases/tag/%E8%87%AA%E5%8B%95%E7%99%BB%E5%85%A5)
+
 - 若有任何問題，歡迎聯絡開發者協助。
