@@ -79,8 +79,7 @@ class MyWidget(QtWidgets.QWidget):
         self.window_size = (400, 400)               # 視窗大小
         WIDTH, HEIGHT = self.window_size
         self.account_file = "account.txt"  # 存儲帳號密碼的文件
-        self.button = list()
-        self.check_account()               # 檢查帳號密碼紀錄
+        self.button = list()             # 檢查帳號密碼紀錄
         self.setWindowTitle('自動登入使用者介面')     # 設置視窗標題
         self.resize(WIDTH, HEIGHT)                  # 設置視窗大小
         self.setUpdatesEnabled(True)                # 允許視窗自動更新
