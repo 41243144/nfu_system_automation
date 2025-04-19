@@ -3,3 +3,5 @@ webdriver-manager
 pyqt6
 bcrypt
 ddddocr
+filelock
+chromedriver_autoinstaller_max

@@ -1,0 +1,240 @@
+{
+    "nfu" : {
+        "icon" :    {
+            "image" : "images/nfu/nfu.jpg",
+            "url"   : "https://www.nfu.edu.tw/"
+        },
+        "ulearn" :  {
+            "image" : "images/nfu/nfu_ulearn.png",
+            "url"   : "https://identity.nfu.edu.tw/auth/realms/nfu/protocol/cas/login?ui_locales=zh-TW&service=https%3A//ulearn.nfu.edu.tw/login%3Fnext%3D/user/index&locale=zh_TW",
+            "redirect_url" : "https://ulearn.nfu.edu.tw/user/courses#",
+            "username_field" : {
+                "by" : "id",
+                "value" : "username"
+            },
+            "password_field" : {
+                "by" : "id",
+                "value" : "password"
+            },
+            "login_button" : {
+                "by" : "css_selector",
+                "value" : ".btn-login"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "captcha_image" : {
+                    "by" : "css_selector",
+                    "value" : ".captcha-image",
+                    "encoding" : "base64"
+                },
+                "captcha_field" : {
+                    "by" : "id",
+                    "value" : "captchaCode"
+                }
+            },
+            "vaild" : {
+                "mode" : "find_element",
+                "error" : {
+                    "datatype" : "text",
+                    "text": "驗證碼"
+                },
+                "by" : "css_selector",
+                "value" : ".info_group"
+            }
+        },
+        "ecare" : {
+            "image" : "images/nfu/nfu_ecare.png",
+            "url"   : "https://ecare.nfu.edu.tw/",
+            "redirect_url" : "",
+            "username_field" : {
+                "by" : "id",
+                "value" : "login_acc"
+            },
+            "password_field" : {
+                "by" : "id",
+                "value" : "login_pwd"
+            },
+            "login_button" : {
+                "by" : "id",
+                "value" : "bt_login"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "captcha_image" : {
+                    "by" : "id",
+                    "value" : "authimg",
+                    "encoding" : "image"
+                },
+                "captcha_field" : {
+                    "by" : "id",
+                    "value" : "login_chksum"
+                }
+            },
+            "vaild" : {
+                "mode" : "not_find_element",
+                "by" : "css_selector",
+                "value" : ".text-red"
+            }
+        },
+        "mail2000" : {
+            "image" : "images/nfu/nfu_mail2000.png",
+            "url"   : "https://mail.nfu.edu.tw/",
+            "redirect_url" : "",
+            "username_field" : {
+                "by" : "css_selector",
+                "value" : ".input-wrapper input[name='USERID']"
+            },
+            "password_field" : {
+                "by" : "css_selector",
+                "value" : ".input-wrapper input[name='PASSWD']"
+            },
+            "login_button" : {
+                "by" : "css_selector",
+                "value" : "#stdLogin input[type='submit']"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "captcha_image" : {
+                    "by" : "id",
+                    "value" : "CaptQuiz",
+                    "encoding" : "image"
+                },
+                "captcha_field" : {
+                    "by" : "css_selector",
+                    "value" : ".input-wrapper input[name='CaptAns']"
+                }
+            },
+            "vaild" : {
+                "mode" : "find_element",
+                "error" : {
+                    "datatype" : "text",
+                    "text": "驗證碼"
+                },
+                "by" : "css_selector",
+                "value" : ".error-message"
+            }
+        },
+        "工讀平台" : {
+            "image" : "images/nfu/nfu_study_work.png",
+            "url"   : "https://sw.nfu.edu.tw/",
+            "redirect_url" : "",
+            "delay" : 0.2,
+            "username_field" : {
+                "by" : "id",
+                "value" : "acc"
+            },
+            "password_field" : {
+                "by" : "id",
+                "value" : "pass"
+            },
+            "login_button" : {
+                "by" : "id",
+                "value" : "bt_login"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "length" : 6,
+                "captcha_image" : {
+                    "by" : "id",
+                    "value" : "authimg",
+                    "encoding" : "image"
+                },
+                "captcha_field" : {
+                    "by" : "id",
+                    "value" : "caword"
+                }
+            },
+            "vaild" : {
+                "mode" : "not_find_element",
+                "error" : {
+                    "datatype" : "text",
+                    "text": "驗證碼"
+                },
+                "by" : "id",
+                "value" : "logoutfrm"
+            }
+        },
+        "iAct" : {
+            "image" : "images/nfu/nfu_iact.png",
+            "url"   : "https://iact.nfu.edu.tw/adlogin",
+            "redirect_url" : "https://iact.nfu.edu.tw/",
+            "username_field" : {
+                "by" : "id",
+                "value" : "username"
+            },
+            "password_field" : {
+                "by" : "id",
+                "value" : "password"
+            },
+            "login_button" : {
+                "by" : "css_selector",
+                "value" : ".text-center .btn-primary"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "captcha_image" : {
+                    "by" : "id",
+                    "value" : "captcha_src",
+                    "encoding" : "image"
+                },
+                "captcha_field" : {
+                    "by" : "id",
+                    "value" : "captcha"
+                }
+            },
+            "vaild" : {
+                "mode" : "not_find_element",
+                "error" : {
+                    "datatype" : "text",
+                    "text": "驗證碼"
+                },
+                "by" : "id",
+                "value" : "login-string"
+            }
+        }
+    },
+    "yuntech" : {
+        "icon" :    {
+            "image" : "images/yuntech/yuntech.jpg",
+            "url"   : "https://www.yuntech.edu.tw/"
+        },
+        "yuntechsso" :  {
+            "image" : "images/yuntech/yuntechsso.png",
+            "url"   : "https://webapp.yuntech.edu.tw/yuntechsso/Account/Login?ReturnUrl=%2Fyuntechsso%2F",
+            "redirect_url" : "",
+            "username_field" : {
+                "by" : "id",
+                "value" : "pLoginName"
+            },
+            "password_field" : {
+                "by" : "id",
+                "value" : "pLoginPassword"
+            },
+            "login_button" : {
+                "by" : "id",
+                "value" : "LoginSubmitBtn"
+            },
+            "captcha" : {
+                "vaildate" : true,
+                "captcha_image" : {
+                    "by" : "id",
+                    "value" : "NumberCaptcha",
+                    "encoding" : "base64"
+                },
+                "captcha_field" : {
+                    "by" : "id",
+                    "value" : "ValidationCode"
+                }
+            },
+            "vaild" : {
+                "mode" : "find_element",
+                "error" : {
+                    "datatype" : "text",
+                    "text": "驗證碼"
+                },
+                "by" : "css_selector",
+                "value" : ".info_group"
+            }
+        }
+    }
+}

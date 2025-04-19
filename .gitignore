@@ -1,2 +1,17 @@
+/build/
+/dist/
 /venv/
 /__pycache__/
+/testFiles/
+/output/
+common_old.onnx
+common.onnx
+dist.zip
+gui.spec
+LoginHelper.spec
+onnxruntime_providers_shared.dll
+setting.spec
+TronClassBot.json
+校務系統登入.iss
+icon.png
+.gitignore

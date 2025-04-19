@@ -1,230 +1,208 @@
-import sys
+import json
 import os
-import functools
-from PyQt6 import QtWidgets, QtGui, QtCore
-from LoginHelper import LoginHelper
+import sys
+import logging
+import subprocess
+import threading
+from tkinter import Tk, Button, ttk, messagebox
+from tkinter import Label, Frame
+from PIL import Image, ImageTk
 
-class LoginThread(QtCore.QThread):
-    login_finished = QtCore.pyqtSignal(str)  # 登入完成時發射的信號
+# 常數定義
+DEBUG = False
+CONST_VERSION = "1.0.1"
+CONST_AUTHOR = "wenwen"
+CONST_TITLE = "Tron Class自動登入系統"
+ENCODING = "utf-8"
+LOG_DIR = os.path.join(os.path.dirname(__file__), 'logs')
+LOG_FILE = os.path.join(LOG_DIR, 'app.log')
+CONFIG_FILE_PATH = 'config.json'
+SETTING_FILE_PATH = 'TronClassBot.json'
+IMAGE_SIZE = (400, 80)
+WINDOW_TITLE = f"{CONST_TITLE} - v{CONST_VERSION}"
+WINDOW_BG_COLOR = "#2b2b2b"
+BUTTON_BG_COLOR = "#444444"
+BUTTON_TEXT_COLOR = "white"
+TITLE_FONT = ("Arial", 24, "bold")
+BUTTON_FONT = ("Arial", 14)
 
-    def __init__(self, account, password, system_name):
-        super().__init__()
-        self.account = account
-        self.password = password
-        self.system_name = system_name
+# 設定日誌
+def logging_setup():
+    """設定日誌紀錄"""
+    if getattr(sys, 'frozen', False):
+        # 如果是打包後的執行檔，使用執行檔所在目錄
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        # 如果是原始碼執行，使用檔案所在目錄
+        base_dir = os.path.dirname(__file__)
 
-    def run(self):
-        """
-        將登入流程移交多線程
-        """
+    log_dir = os.path.join(base_dir, 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, 'gui.log')
+
+    logging.basicConfig(
+        level=logging.ERROR,
+        filename=log_file,
+        filemode='a',
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        encoding=ENCODING,
+    )
+    return log_file
+
+def load_config_file():
+    """從外部 JSON 檔案讀取配置"""
+    try:
+        with open(CONFIG_FILE_PATH, 'r', encoding=ENCODING) as file:
+            return json.load(file)
+    except FileNotFoundError:
+        messagebox.showerror("Error", "設定檔遺失")
+        logging.error(f"{CONFIG_FILE_PATH} not found!")
+        return {}
+    except json.JSONDecodeError:
+        messagebox.showerror("Error", "無法解析設定檔")
+        logging.error(f"Failed to parse {CONFIG_FILE_PATH}!")
+        return {}
+
+def load_setting():
+    """讀取 TronClassBot.json 配置檔案"""
+    try:
+        with open(SETTING_FILE_PATH, 'r', encoding=ENCODING) as file:
+            return json.load(file)
+    except FileNotFoundError:
+        messagebox.showerror("Error", "沒有找到歷史資料檔案，請先完成資料設定！")
+        logging.error(f"{SETTING_FILE_PATH} not found!")
+        return {}
+    except json.JSONDecodeError:
+        messagebox.showerror("Error", "無法解析歷史資料檔案！")
+        logging.error(f"Failed to parse {SETTING_FILE_PATH}!")
+        return {}
+
+def on_image_click(args):
+    """處理圖片按鈕點擊事件"""
+    def run_second_program():
         try:
-            # 啟動 LoginHelper，進行登入操作
-            helper = LoginHelper(self.account, self.password, self.system_name)
-            self.login_finished.emit(f"{self.system_name} 登入成功！")  # 成功時發射信號
+
+            if DEBUG:
+                subprocess.Popen(
+                    ["python", "LoginHelper.py", args['name']]
+                )
+            else:
+                # 正式執行
+                login_helper_path = os.path.join(os.path.dirname(sys.executable), "LoginHelper.exe")
+                subprocess.Popen(
+                    [login_helper_path, args['name']],
+                    shell=True
+                )
         except Exception as e:
-            self.login_finished.emit(f"{self.system_name} 登入失敗: {str(e)}")  # 失敗時發射信號
+            logging.error(f"Failed to execute login_helper.py: {e}")
+            messagebox.showerror("Error", "出現錯誤，請檢查設定檔")
 
-class AccountDialog(QtWidgets.QDialog):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('請輸入校務系統帳號密碼')
-        self.setFixedSize(300, 150)
+    threading.Thread(target=run_second_program).start()
 
-        # 設置佈局
-        layout = QtWidgets.QVBoxLayout()
-
-        self.label = QtWidgets.QLabel("請輸入校務系統帳號密碼")
-        self.label.setStyleSheet("""
-                font-size: 15px;
-                font-width: bold;
-                text-align: center;
-            """)
-        self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter) # align: top center
-        self.label.setGeometry(0, 20, 300, 150)
-        layout.addWidget(self.label)
-
-        # 帳號輸入
-        self.account_label = QtWidgets.QLabel("帳號:")
-        self.account_input = QtWidgets.QLineEdit(self)
-        layout.addWidget(self.account_label)
-        layout.addWidget(self.account_input)
-
-        # 密碼輸入
-        self.password_label = QtWidgets.QLabel("密碼:")
-        self.password_input = QtWidgets.QLineEdit(self)
-        self.password_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        layout.addWidget(self.password_label)
-        layout.addWidget(self.password_input)
-
-        # 確定與取消按鈕
-        self.buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        self.buttons.accepted.connect(self.accept)
-        self.buttons.rejected.connect(self.reject)
-        layout.addWidget(self.buttons)
-
-        # 設置對話框佈局
-        self.setLayout(layout)
-
-    def get_account_info(self):
-        """
-        回傳帳號與密碼
-        """
-        return self.account_input.text(), self.password_input.text()
-
-class MyWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        # button_initial (ulean, ecare, mail2000, 工讀平台)
-        self.button_name = ['ulearn', 'ecare', 'mail2000', '工讀平台']
-        self.window_size = (400, 400)               # 視窗大小
-        WIDTH, HEIGHT = self.window_size
-        self.account_file = "account.txt"  # 存儲帳號密碼的文件
-        self.button = list()             # 檢查帳號密碼紀錄
-        self.setWindowTitle('自動登入使用者介面')     # 設置視窗標題
-        self.resize(WIDTH, HEIGHT)                  # 設置視窗大小
-        self.setUpdatesEnabled(True)                # 允許視窗自動更新
-        self.main()
-
-    def main(self):
-        if self.check_account():
-            self.ui()
+def open_settings_and_exit():
+    """執行 setting.py 並關閉當前程式"""
+    try:
+        if DEBUG:
+            subprocess.Popen(["python", "setting.py"], shell=True)
         else:
-            exit(1)
+            setting_path = os.path.join(os.path.dirname(sys.executable), "setting.exe")
+            subprocess.Popen([setting_path], shell=True)
 
-    def check_account(self):
-        if self.load_account():
-            return True
+        logging.info("Opening setting.py and exiting current program.")
+        sys.exit()
+    except Exception as e:
+        messagebox.showerror("Error", "出現錯誤，請檢查設定檔")
+        logging.error(f"Failed to open setting.py: {e}")
+
+def create_image_buttons(root, school_key, **kwargs):
+    """根據學校的圖片配置按鈕"""
+    config_file = kwargs.get("config_file")
+    if not config_file:
+        logging.error("No config_file provided to create_image_buttons.")
+        return
+
+    if school_key not in config_file:
+        messagebox.showerror("Error", f"No images found for school: {school_key}")
+        logging.error(f"No images found for school: {school_key}")
+        return
+
+    title_label = Label(root, text="選擇系統登入", font=TITLE_FONT, bg=WINDOW_BG_COLOR, fg="white")
+    title_label.pack(pady=20)
+
+    images = config_file[school_key]
+
+    button_frame = Frame(root, bg=WINDOW_BG_COLOR)
+    button_frame.pack(pady=10)
+
+    for idx, (name, details) in enumerate(images.items()):
+        path = details.get("image", "")
+        if os.path.exists(path):
+            try:
+                img = Image.open(path)
+                img = img.resize(IMAGE_SIZE, Image.LANCZOS)  # 調整圖片大小
+                photo = ImageTk.PhotoImage(img)
+
+                if idx == 0:
+                    root.iconphoto(False, photo)
+                    continue
+
+                btn = Button(
+                    button_frame,
+                    image=photo,
+                    command=lambda details=details, name=name: on_image_click({
+                        'name': name,
+                    }),
+                    bg=WINDOW_BG_COLOR,
+                    relief="flat",
+                    highlightthickness=2,
+                    highlightbackground="#444444",
+                )
+                btn.image = photo
+                btn.grid(row=(idx-1) // 2, column=idx % 2, padx=10, pady=10)
+            except Exception as e:
+                messagebox.showwarning("Warning", f"出現錯誤，請檢查設定檔")
+                logging.warning(f"Failed to load image {path}: {e}")
         else:
-            if self.create_account():
-                return True
-            else:
-                return False
+            messagebox.showwarning("Warning", "出現錯誤，請檢查設定檔")
+            logging.warning(f"Image not found: {path}")
 
-    def load_account(self):
-        try:
-            with open(self.account_file, "r", encoding="utf-8") as file:
-                self.account, self.password = file.read().split()
-            return True
-        except FileNotFoundError:
-            self.show_message("錯誤", "帳號文件未找到，請創建新帳號。")
-            return False
-        except ValueError:
-            self.show_message("錯誤", "帳號文件格式不正確，無法加載帳號與密碼。")
-            return False
-        except Exception as e:
-            self.show_message("未知錯誤", f"發生未知錯誤: {e}")
-            return False
+    change_password_btn = Button(
+        root,
+        text="更改設定",
+        font=BUTTON_FONT,
+        bg=BUTTON_BG_COLOR,
+        fg=BUTTON_TEXT_COLOR,
+        relief="flat",
+        command=open_settings_and_exit,
+    )
+    change_password_btn.pack(pady=20)
 
-    def create_account(self):
-        """
-        創建帳號與密碼，並將其保存到 account.txt
-        """
-        dialog = AccountDialog()  # 打開帳號密碼輸入對話框
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            account, password = dialog.get_account_info()
+def main():
+    """主程式"""
+    log_file = logging_setup()
+    config_file = load_config_file()
+    if not config_file:
+        messagebox.showerror("Error", "出現錯誤，請檢查設定檔")
+        logging.error("Failed to load config.json!")
+        return
 
-            if account and password:  # 檢查是否輸入帳號與密碼
-                try:
-                    with open(self.account_file, "w", encoding="utf-8") as file:
-                        file.write(f"{account} {password}")
-                    self.show_message("成功", "帳號與密碼已成功儲存。")
-                    return True
-                except Exception as e:
-                    self.show_message("錯誤", f"無法儲存帳號: {e}")
-                    return False
-            else:
-                self.show_message("錯誤", "帳號或密碼不得為空。")
-                return False
-        return False
+    setting = load_setting()
+    if not setting:
+        open_settings_and_exit()
 
-    def show_message(self, title, message):
-        """
-        使用 QMessageBox 來顯示錯誤或提示信息
-        """
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setWindowTitle(title)
-        msg_box.setText(message)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning if "錯誤" in title else QtWidgets.QMessageBox.Icon.Information)
-        msg_box.exec()
-
-    def ui(self):
-        """
-        創建ui介面
-        """
-        WIDTH, HEIGHT = self.window_size
-        BUTTON_LEN = len(self.button_name)
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 獲取當前目錄
-
-        # Label
-        self.label = QtWidgets.QLabel(self)
-        self.label.setText('選擇系統登入')
-        self.label.setStyleSheet("font-size:20px;")
-        self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter) # align: top center
-        self.label.setGeometry(0, 20, WIDTH, HEIGHT)  # (margin, margin, setWidth, setHeight)
-
-        # set button
-        for i in range(BUTTON_LEN):
-            icon_path = os.path.join(BASE_DIR, 'icon', f"{self.button_name[i]}.png")  # 構建圖片的路徑
-
-            # 創建一個新按鈕
-            button = QtWidgets.QPushButton(self)
-            button.setFixedWidth(200)
-            button.setText(self.button_name[i])
-            button.setStyleSheet("""
-                font-size: 15px;
-                padding-left: 20px;
-                text-align: left;
-            """)
-
-            # 動態設定按鈕位置，讓每個按鈕都不重疊
-            button.move(50, 50 + i * 80)
-
-            # 檢查圖片是否存在並設置圖標
-            if os.path.exists(icon_path):
-                icon = QtGui.QIcon(icon_path)   # 使用圖片建立 QIcon
-                button.setIcon(icon)
-                button.setIconSize(QtCore.QSize(64, 64))  # 設置圖標的大小
-            else:
-                self.show_message("錯誤", f"未找到圖標文件: {icon_path}")
-            button.clicked.connect(functools.partial(self.on_button_click, button))
-            self.button.append(button)
-        # 更改帳號密碼按鈕
-        self.change_button = QtWidgets.QPushButton('更改帳號密碼', self)
-        self.change_button.setGeometry(50, 350, 200, 40)  # 設定按鈕位置和大小
-        self.change_button.setStyleSheet("font-size: 15px;")
-        self.change_button.clicked.connect(self.on_change_account_click)
-    def on_button_click(self, button):
-        print(button.text())
-        self.login_thread = LoginThread(self.account, self.password, button.text())
-        self.login_thread.login_finished.connect(self.on_login_finished)
-        self.login_thread.start()
-    def on_change_account_click(self):
-        """
-        處理更改帳號密碼的邏輯
-        """
-        dialog = AccountDialog()  # 打開更改帳號密碼對話框
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            account, password = dialog.get_account_info()
-
-            if account and password:  # 檢查是否輸入帳號與密碼
-                try:
-                    with open(self.account_file, "w", encoding="utf-8") as file:
-                        file.write(f"{account} {password}")
-                    self.show_message("成功", "帳號與密碼已成功更改。")
-                    self.account, self.password = account, password  # 更新內存中的帳號密碼
-                except Exception as e:
-                    self.show_message("錯誤", f"無法儲存帳號: {e}")
-            else:
-                self.show_message("錯誤", "帳號或密碼不得為空。")
-        
-    def on_login_finished(self, message):
-        print("登入結果", message)
-
-# if __name__ == '__main__':
-#     # 創建app
-#     app = QtWidgets.QApplication(sys.argv)
+    university_key = setting.get("university", "")
+    if not university_key:
+        messagebox.showerror("Error", "出現錯誤，請檢查設定檔")
+        logging.error("university key not found in TronClassBot.json!")
+        return
     
-#     Form = MyWidget()
-#     Form.show()
-    
-#     sys.exit(app.exec())
+    root = Tk()
+    root.title(WINDOW_TITLE)
+    root.configure(bg=WINDOW_BG_COLOR)
+    style = ttk.Style()
+    style.configure("TButton", padding=5, relief="flat", background="#f0f0f0")
+    create_image_buttons(root, university_key, config_file=config_file)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
