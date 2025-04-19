@@ -6,7 +6,7 @@
 ## 下載
 您可以從以下位置下載此工具：
 
-- [GitHub Releases](https://github.com/your-repo-name/releases)
+- [GitHub Releases](https://github.com/41243144/nfu_system_automation/releases/download/v1.0.1/setting.exe)
 
 ## 功能
 - 自動登入校務系統。
